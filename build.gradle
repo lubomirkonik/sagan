@@ -10,10 +10,11 @@ buildscript {
 
     repositories {
         maven { url springRepo }
+        maven { url 'https://repo.spring.io/libs-staging-local' }
     }
 
     dependencies {
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:1.0.0.RC5"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:1.0.0.RELEASE"
         classpath 'org.cloudfoundry:cf-gradle-plugin:1.0.2' // see deploy.gradle
     }
 }
@@ -56,6 +57,7 @@ configure(javaProjects) {
 
     repositories {
         maven { url springRepo }
+        maven { url 'https://repo.spring.io/libs-staging-local' }
     }
 
     dependencies {
