@@ -13,7 +13,7 @@ public class ToolSuiteDownloads {
     private final List<UpdateSiteArchive> archives;
     private final String shortName;
     private final String releaseName;
-	private final String whatsNew;
+    private final String whatsNew;
 
     public ToolSuiteDownloads(String shortName, String releaseName, String whatsNew,
                               Map<String, ToolSuitePlatform> platforms, List<UpdateSiteArchive> archives) {
@@ -21,7 +21,7 @@ public class ToolSuiteDownloads {
         this.releaseName = releaseName;
         this.platforms = platforms;
         this.archives = archives;
-	    this.whatsNew = whatsNew;
+        this.whatsNew = whatsNew;
     }
 
     public List<ToolSuitePlatform> getPlatformList() {
@@ -38,10 +38,10 @@ public class ToolSuiteDownloads {
 
     public Set<DownloadLink> getPreferredDownloadLinks() {
         Set<DownloadLink> links = new HashSet<>();
-        addLinks(links, "windows", "exe");
-        addLinks(links, "windows", "exe");
-        addLinks(links, "mac", "dmg");
-        addLinks(links, "mac", "dmg");
+        addLinks(links, "windows", "zip");
+        addLinks(links, "windows", "zip");
+        addLinks(links, "mac", "tar.gz");
+        addLinks(links, "mac", "tar.gz");
         addLinks(links, "linux", "tar.gz");
         addLinks(links, "linux", "tar.gz");
         return links;
@@ -68,11 +68,11 @@ public class ToolSuiteDownloads {
         return String.format("%s %s", shortName, releaseName);
     }
 
-	public String getWhatsNew() {
-		return whatsNew;
-	}
+    public String getWhatsNew() {
+        return whatsNew;
+    }
 
-	public boolean hasPlatforms() {
+    public boolean hasPlatforms() {
         return platforms.size() > 0;
     }
 }

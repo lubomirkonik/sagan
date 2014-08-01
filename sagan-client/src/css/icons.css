@@ -108,8 +108,8 @@
 }
 .icon.project--logo.logo-spring-ldap {
   width: 93px;
-  height: 107px;
-  background-position: 247px 944px;
+  height: 105px;
+  background-position: 225px 1058px;
   margin-top: 19px;
 }
 .icon.project--logo.logo-grails {
@@ -123,6 +123,18 @@
   height: 92px;
   background-position: 546px 940px;
   margin-top: 23px;
+}
+.icon.project--logo.logo-spring-cloud {
+    width: 150px;
+    height: 111px;
+    background-position: 253px 955px;
+    margin-top: 13px;
+}
+.icon.project--logo.logo-platform {
+    width: 116px;
+    height: 105px;
+    background-position: 675px 957px;
+    margin-top: 23px;
 }
 .icon.icon-projects {
   width: 28px;
@@ -220,6 +232,9 @@
   width: 20px;
   height: 20px;
   vertical-align: middle;
+}
+.icon.blog-icon.comments {
+  background-position: 20px 636px;
 }
 .icon.blog-icon.calendar {
   background-position: 20px 594px;

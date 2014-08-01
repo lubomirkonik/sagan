@@ -17,15 +17,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
+/**
+ * Controller that handles ajax requests for project metadata, typically from the
+ * individual Spring project pages managed via GitHub's "GH Pages" infrastructure at
+ * http://projects.spring.io. See https://github.com/spring-projects/gh-pages#readme for
+ * more information.
+ */
 @Controller
 @RequestMapping("/project_metadata")
 class ProjectMetadataController {
 
-    private ProjectMetadataService service;
+    private final ProjectMetadataService service;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public ProjectMetadataController(ProjectMetadataService service) {
+    public ProjectMetadataController(ProjectMetadataService service, ObjectMapper objectMapper) {
         this.service = service;
+        this.objectMapper = objectMapper;
     }
 
     @RequestMapping(value = "/{projectId}", method = { GET, HEAD })
@@ -36,9 +44,7 @@ class ProjectMetadataController {
 
         Project project = service.getProject(projectId);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        out.print(callback + String.format("(%s);", objectMapper.writeValueAsString(project)));
+        out.print(callback + String.format("(%s);", this.objectMapper.writeValueAsString(project)));
     }
 
 }

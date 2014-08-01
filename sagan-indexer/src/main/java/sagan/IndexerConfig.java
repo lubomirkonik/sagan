@@ -1,14 +1,9 @@
 package sagan;
 
-import sagan.support.StaticPagePathFinder;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.social.SocialWebAutoConfiguration;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -19,8 +14,12 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.client.RestTemplate;
+import sagan.support.StaticPagePathFinder;
 
-@EnableAutoConfiguration
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+@EnableAutoConfiguration(exclude=SocialWebAutoConfiguration.class)
 @Configuration
 @EnableScheduling
 @ComponentScan
@@ -51,8 +50,13 @@ class IndexerConfig {
     }
 
     @Bean
-    public Serializer simpleXmlSerializer() {
-        return new Persister();
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
+
+    @Bean
+    public XmlMapper xmlMapper() {
+        return new XmlMapper();
     }
 
 }

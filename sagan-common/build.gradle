@@ -6,18 +6,28 @@ sourceSets {
 }
 
 dependencies {
+
+    def vJackson = '2.4.1'
+
+    compile "org.apache.httpcomponents:httpclient" // Prevents Jest from pulling in 4.2.x
     compile "org.springframework:spring-context"
     compile "org.springframework.security:spring-security-core"
     compile 'org.springframework.social:spring-social-github:1.0.0.M4'
+    compile 'org.springframework:spring-webmvc' // Prevents Spring Social from pulling in 3.2.x
     compile "org.springframework.boot:spring-boot-starter-data-jpa"
-    compile "org.springframework.data:spring-data-jpa:1.5.1.RELEASE"
+
+    // explicitly depend on 4.0.3 to avoid dragging in 3.2.3
+    compile "org.springframework:spring-web:4.0.3.RELEASE"
+    compile "org.springframework:spring-webmvc:4.0.3.RELEASE"
+    compile "org.apache.httpcomponents:httpclient:4.3"
+
 
     compile 'org.elasticsearch:elasticsearch:0.90.2'
     compile('io.searchbox:jest:0.0.4') {
         exclude(module: 'commons-logging')
     }
-    compile 'org.springframework.cloud:spring-service-connector:0.9.5'
-    compile 'org.springframework.cloud:cloudfoundry-connector:0.9.5'
+    compile 'org.springframework.cloud:spring-cloud-spring-service-connector'
+    compile 'org.springframework.cloud:spring-cloud-cloudfoundry-connector'
 
     // datasource and connection pool dependencies
     runtime 'org.postgresql:postgresql:9.2-1002-jdbc4'
@@ -25,16 +35,16 @@ dependencies {
     compile 'org.apache.tomcat:tomcat-jdbc'
 
     // for use in on-the-fly database setup and migrations
-    compile 'com.googlecode.flyway:flyway-core:2.2.1'
+    compile 'org.flywaydb:flyway-core'
 
-    compile('org.simpleframework:simple-xml:2.7') {
-        exclude(module: 'stax')
-        exclude(module: 'stax-api')
-        exclude(module: 'xpp3')
-    }
+    // jackson, for JSON and XML serialization
+    compile "com.fasterxml.jackson.core:jackson-core:${vJackson}"
+    compile "com.fasterxml.jackson.core:jackson-annotations:${vJackson}"
+    compile "com.fasterxml.jackson.core:jackson-databind:${vJackson}"
+    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${vJackson}"
+    compile "org.codehaus.woodstox:woodstox-core-asl:4.1.4"
 
     compile 'org.jsoup:jsoup:1.7.2'
-    compile 'org.yaml:snakeyaml'
     compile 'joda-time:joda-time'
     compile 'org.hibernate:hibernate-validator'
 
@@ -64,3 +74,7 @@ idea.module {
 // are actually "boot"-style apps.
 apply plugin: 'spring-boot'
 bootRepackage.enabled = false
+
+dependencies {
+    versionManagement 'io.spring.platform:platform-versions:1.0.0.RELEASE@properties'
+}

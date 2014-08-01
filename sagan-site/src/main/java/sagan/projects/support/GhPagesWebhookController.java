@@ -37,7 +37,7 @@ import static java.lang.String.format;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
- * Accepts requests from GitHub webhook set up at <a
+ * Controller that handles requests from GitHub webhook set up at <a
  * href="https://github.com/spring-projects/gh-pages#readme">the shared gh-pages
  * repository</a> and notifies project leads to merge those new changes into their own
  * projects. This notification happens by adding a new GH Issue to each project under the
@@ -53,20 +53,23 @@ class GhPagesWebhookController {
 
     private static final Log logger = LogFactory.getLog(GhPagesWebhookController.class);
 
-    private final ProjectMetadataService service;
+    private final ProjectMetadataService projectMetadataService;
     private final GitHub gitHub;
     private final String template;
+    private final ObjectMapper objectMapper;
 
     @Value("${WEBHOOK_ACCESS_TOKEN:default}")
     private String accessToken;
 
     @Autowired
-    public GhPagesWebhookController(ProjectMetadataService service, GitHub gitHub) throws IOException {
-        this.service = service;
+    public GhPagesWebhookController(ProjectMetadataService service, GitHub gitHub,
+                                    ObjectMapper objectMapper) throws IOException {
+        this.projectMetadataService = service;
         this.gitHub = gitHub;
-        template = StreamUtils.copyToString(
+        this.template = StreamUtils.copyToString(
                 new ClassPathResource("notifications/gh-pages-updated.md").getInputStream(),
                 Charset.defaultCharset());
+        this.objectMapper = objectMapper;
     }
 
     @SuppressWarnings("unchecked")
@@ -79,13 +82,12 @@ class GhPagesWebhookController {
             headers.set("Status", "403 Forbidden");
             return new HttpEntity<>("{ \"message\": \"Forbidden\" }\n", headers);
         }
-        ObjectMapper jsonMapper = new ObjectMapper();
         SpelExpressionParser parser = new SpelExpressionParser();
         Expression spel = parser.parseExpression(template, new TemplateParserContext());
 
         Map<?, ?> push;
         try {
-            push = jsonMapper.readValue(payload, Map.class);
+            push = this.objectMapper.readValue(payload, Map.class);
             logger.info("Recieved new webhook payload for push with head_commit message: "
                     + ((Map<?, ?>) push.get("head_commit")).get("message"));
         } catch (JsonParseException ex) {
@@ -100,9 +102,9 @@ class GhPagesWebhookController {
         Map<String, Object> root = new HashMap<>();
         root.put("push", push);
         root.put("commits", commits);
-        service.getProjects().stream()
+        projectMetadataService.getProjects().stream()
                 .filter(project -> hasGhPagesBranch(project))
-                .forEach(project -> createGitHubIssue(project, jsonMapper, root, spel));
+                .forEach(project -> createGitHubIssue(project, this.objectMapper, root, spel));
         headers.set("Status", "200 OK");
         return new HttpEntity<>("{ \"message\": \"Successfully processed update\" }\n", headers);
     }

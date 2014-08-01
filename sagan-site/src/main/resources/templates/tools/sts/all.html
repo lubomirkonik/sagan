@@ -4,6 +4,11 @@
         data-info-popups>
 <head>
     <title>Download STS</title>
+    <!-- http://opengraphprotocol.org/ -->
+    <meta property="og:title" content="Spring Tool Suite&trade; (STS) Download page" />
+    <meta property="og:image" th:content="@{/img/spring-by-pivotal.png}" />
+    <meta property="og:description" content="Use one of the links below to download an all-in-one distribution for your
+    platform. Choose either a native installer or simple archive, they contain equivalent functionality" />
 </head>
 <body>
 <div layout:fragment="header-container"></div>
@@ -13,12 +18,11 @@
       <div class="content--title">Tools</div>
         <h1 class="tools--title">Spring Tool Suite&trade; Downloads</h1>
         <p class="tools--description">Use one of the links below to download an all-in-one
-            distribution for your platform. Choose either a native installer or simple
-            archive, they contain equivalent functionality.</p>
+            distribution for your platform.</p>
 
-          <div class='ga--release' layout:include="tools/_tools_versions :: tools-versions" th:with="release=${gaRelease}"></div>
-          <div class='milestone--release' layout:include="tools/_tools_versions :: tools-versions" th:with="release=${milestoneRelease}" th:if="${milestoneRelease.hasPlatforms()}"></div>
-
+          <section class='ga--release' layout:include="tools/_tools_versions :: tools-versions" th:with="release=${gaRelease}"></section>
+          <section class='milestone--release' layout:include="tools/_tools_versions :: tools-versions" th:with="release=${milestoneRelease}" th:if="${milestoneRelease.hasPlatforms()}"></section>
+        <section>
         <h2>Update Site Archives</h2>
         <p>You can download archived versions of the update sites, if you
             want to install STS/GGTS into an existing Eclipse installation or if
@@ -40,7 +44,9 @@
             </tr>
           </tbody>
         </table>
+        </section>
         <br>
+        <section>
         <h2>Update Sites</h2>
         <p>
           If you want to install STS/GGTS in an existing Eclipse installation, you can use one of the following update sites. Please choose the one that matches the Eclipse version you're running:
@@ -53,6 +59,10 @@
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <td>4.4</td>
+              <td><a href="http://dist.springsource.com/release/TOOLS/update/e4.4/">http://dist.springsource.com/release/TOOLS/update/e4.4/</a></td>
+            </tr>
             <tr>
               <td>4.3</td>
               <td><a href="http://dist.springsource.com/release/TOOLS/update/e4.3/">http://dist.springsource.com/release/TOOLS/update/e4.3/</a></td>
@@ -79,9 +89,10 @@
             <p><a href="https://issuetracker.springsource.com/browse/STS">File a ticket for STS using our JIRA</a></p>
           </div>
           <div>
-            <p><a href="http://forum.spring.io/forum/spring-projects/springsource-tool-suite">Have a question or a problem? Ask the forum for STS</a></p>
+            <p><a href="https://stackoverflow.com/questions/ask?tags=spring-tool-suite">Have a question or a problem? Ask StackOverflow for STS</a></p>
           </div>
         </div>
+        </section>
       </div>
     </div>
   </div>

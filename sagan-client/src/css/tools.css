@@ -30,6 +30,8 @@
   font-family: "Montserrat", sans-serif;
   line-height: 24px;
   margin-bottom: 20px;
+  color: #f1f1f1;
+  font-weight: normal;
 }
 .tool--container .tool--description {
   font-size: 14px;
@@ -302,6 +304,7 @@
   margin: 40px 0 33px;
   width: 232px;
   padding: 0 10px;
+  min-height: 182px;
 }
 .tool-versions--wrapper .tool-versions--container .platform:last-child {
   border-right: none;

@@ -1,26 +1,28 @@
 package sagan;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import sagan.guides.support.GettingStartedGuides;
 import sagan.support.cache.CachedRestClient;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
 import org.h2.server.web.WebServlet;
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
 import org.tuckey.web.filters.urlrewrite.UrlRewriteFilter;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.health.AbstractHealthIndicator;
+import org.springframework.boot.actuate.health.Health.Builder;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.social.SocialWebAutoConfiguration;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.orm.jpa.EntityScan;
@@ -38,7 +40,14 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 import com.google.common.cache.CacheBuilder;
 
-@EnableAutoConfiguration
+/**
+ * Main configuration resource for the Sagan web application. The use of @ComponentScan
+ * here ensures that other @Configuration classes such as {@link MvcConfig} and
+ * {@link SecurityConfig} are included as well.
+ *
+ * @see SiteMain#main(String[])
+ */
+@EnableAutoConfiguration(exclude=SocialWebAutoConfiguration.class)
 @Configuration
 @EnableCaching(proxyTargetClass = true)
 @ComponentScan
@@ -50,33 +59,39 @@ public class SiteConfig {
     public static final String REWRITE_FILTER_CONF_PATH = "urlrewrite.xml";
 
     @Bean
-    public HealthIndicator<Map<String, Object>> healthIndicator(DataSource dataSource) {
+    public HealthIndicator healthIndicator(DataSource dataSource) {
         if (dataSource instanceof org.apache.tomcat.jdbc.pool.DataSource) {
             org.apache.tomcat.jdbc.pool.DataSource tcDataSource =
                     (org.apache.tomcat.jdbc.pool.DataSource) dataSource;
-            return () -> {
-                Map<String, Object> health = new HashMap<>();
-                health.put("active", tcDataSource.getActive());
-                health.put("max_active", tcDataSource.getMaxActive());
-                health.put("idle", tcDataSource.getIdle());
-                health.put("max_idle", tcDataSource.getMaxIdle());
-                health.put("min_idle", tcDataSource.getMinIdle());
-                health.put("wait_count", tcDataSource.getWaitCount());
-                health.put("max_wait", tcDataSource.getMaxWait());
-                return health;
+            return new AbstractHealthIndicator() {
+                @Override
+                protected void doHealthCheck(Builder healthBuilder) throws Exception {
+                    healthBuilder.up().withDetail("active", tcDataSource.getActive())
+                            .withDetail("max_active", tcDataSource.getMaxActive())
+                            .withDetail("idle", tcDataSource.getIdle())
+                            .withDetail("max_idle", tcDataSource.getMaxIdle())
+                            .withDetail("min_idle", tcDataSource.getMinIdle())
+                            .withDetail("wait_count", tcDataSource.getWaitCount())
+                            .withDetail("max_wait", tcDataSource.getMaxWait());
+                }
             };
         }
-        return Collections::emptyMap;
+        return null;
     }
 
     @Bean
     public RestTemplate restTemplate() {
-        return new RestTemplate();
+        return new RestTemplate(new HttpComponentsClientHttpRequestFactory(HttpClientBuilder.create().build()));
     }
 
     @Bean
-    public Serializer simpleXmlSerializer() {
-        return new Persister();
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
+
+    @Bean
+    public XmlMapper xmlMapper() {
+        return new XmlMapper();
     }
 
     @Bean
@@ -129,5 +144,4 @@ public class SiteConfig {
         ConcurrentMap<Object, Object> map = cacheBuilder.build().asMap();
         return new ConcurrentMapCache(name, map, false);
     }
-
 }
