@@ -17,8 +17,7 @@
     <!-- http://opengraphprotocol.org/ -->
     <meta property="og:title" th:content="${guide.title}" />
     <meta property="og:image" th:content="@{/img/spring-by-pivotal.png}" />
-    <meta property="og:description" content="this guide is designed to get you productive as quickly as
-    possible and using the latest Spring project releases and techniques as recommended by the Spring team" />
+    <meta property="og:description" th:content="${description}" />
   </head>
   <body>
     <div layout:fragment="header-container"></div>
@@ -67,9 +66,6 @@
                   </a>
                 </div>
               </div>
-            </div>
-            <div class="right-pane-widget--container desktop-only">
-              <a href="http://springone2gx.com"><img th:src="@{/img/event/springone2gx2014.png}" alt="SpringOne 2GX 2014 in Dallas, TX" /></a>
             </div>
             <div th:utext="${guide.sidebar}">Container</div>
           </aside>

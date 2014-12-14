@@ -72,13 +72,13 @@ cloudfoundry {
     domain = 'cfapps.io'
     memory = 2048
     healthCheckTimeout = 180
-    buildpack = 'https://github.com/spring-io/java-buildpack'
+    buildpack = 'https://github.com/cloudfoundry/java-buildpack/'
 }
 
 if (project.name == siteProject.name) {
     cloudfoundry {
         application = 'sagan' // instead of 'sagan-site'
-        instances = 4
+        instances = 3
         variants = ['-blue', '-green']
     }
 }

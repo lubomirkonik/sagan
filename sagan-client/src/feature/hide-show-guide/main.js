@@ -7,6 +7,14 @@ var container = $('.content--container');
 var guidesBuildPref = '/guides/gs/build';
 var buildOpts = ['gradle', 'maven', 'sts'];
 
+var relatedElementMap = {
+    "reveal-gradle":'#scratch',
+    "reveal-maven":'#use-maven',
+    "reveal-sts":'#use-sts',
+    "use-gradle":'#reveal-gradle',
+    "use-maven":'#reveal-maven',
+    "use-sts":'#reveal-sts'
+};
 
 module.exports = initHideShowGuide;
 
@@ -31,22 +39,32 @@ function initHideShowGuide() {
     return plan;
 }
 
-function revealGradle() {
-    reveal('gradle');
+function revealGradle(e) {
+    reveal('gradle', e);
 }
 
-function revealMaven() {
-    reveal('maven');
+function revealMaven(e) {
+    reveal('maven', e);
 }
 
-function revealSTS() {
-    reveal('sts');
+function revealSTS(e) {
+    reveal('sts', e);
 }
 
-function reveal(cls) {
+function reveal(cls, e) {
     hideBuildSteps();
     body.addClass('show-' + cls);
     storage.setItem(guidesBuildPref, cls);
+
+    if (e !== undefined) {
+        for (var k in relatedElementMap) {
+            if ($(e.currentTarget).hasClass(k)) {
+                $(relatedElementMap[k]).each(function(i, el){el.scrollIntoView(true);});
+                break;
+            }
+        }
+    }
+
 }
 
 function hideBuildSteps() {
@@ -64,7 +82,7 @@ function registerBuildSwitches() {
     if (storage.hasItem(guidesBuildPref)) {
         var preference = storage.getItem(guidesBuildPref);
         if (buildOpts.indexOf(preference) >= 0) {
-            reveal(preference);
+            reveal(preference, undefined);
         } else {
             hideBuildSteps();
         }
