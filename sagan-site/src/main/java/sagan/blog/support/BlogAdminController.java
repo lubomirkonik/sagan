@@ -1,13 +1,19 @@
 package sagan.blog.support;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.web.bind.annotation.RequestParam;
 import sagan.blog.Post;
 import sagan.blog.PostCategory;
+import sagan.blog.PostFormat;
 import sagan.support.DateFactory;
 import sagan.support.nav.PageableFactory;
+import sagan.support.nav.PaginationInfo;
 import sagan.team.MemberProfile;
 import sagan.team.support.TeamRepository;
 
 import java.security.Principal;
+import java.util.Collections;
 
 import javax.validation.Valid;
 
@@ -44,11 +50,20 @@ class BlogAdminController {
     }
 
     @RequestMapping(value = "", method = { GET, HEAD })
-    public String dashboard(Model model) {
-        Pageable pageRequest = PageableFactory.forDashboard();
-        model.addAttribute("posts", PostView.pageOf(service.getPublishedPosts(pageRequest), dateFactory));
-        model.addAttribute("drafts", PostView.pageOf(service.getDraftPosts(pageRequest), dateFactory));
-        model.addAttribute("scheduled", PostView.pageOf(service.getScheduledPosts(pageRequest), dateFactory));
+    public String dashboard(Model model, @RequestParam(defaultValue = "1") int page) {
+        Page<PostView> postViewPage = PostView.pageOf(service.getPublishedPosts(PageableFactory.forDashboard(page)), dateFactory);
+        model.addAttribute("posts", postViewPage);
+        model.addAttribute("paginationInfo", new PaginationInfo(postViewPage));
+
+        if(page == 1) {
+            model.addAttribute("drafts", PostView.pageOf(service.getDraftPosts(PageableFactory.all()), dateFactory));
+            model.addAttribute("scheduled", PostView.pageOf(service.getScheduledPosts(PageableFactory.all()), dateFactory));
+        } else {
+            Page<PostView> emptyPage = new PageImpl<PostView>(Collections.emptyList(), PageableFactory.all(), 0);
+            model.addAttribute("drafts", emptyPage);
+            model.addAttribute("scheduled", emptyPage);
+        }
+
         return "admin/blog/index";
     }
 
@@ -56,6 +71,7 @@ class BlogAdminController {
     public String newPost(Model model) {
         model.addAttribute("postForm", new PostForm());
         model.addAttribute("categories", PostCategory.values());
+        model.addAttribute("formats", PostFormat.values());
         return "admin/blog/new";
     }
 
@@ -63,10 +79,13 @@ class BlogAdminController {
     public String editPost(@PathVariable Long postId, @PathVariable String slug, Model model) {
         Post post = service.getPost(postId);
         PostForm postForm = new PostForm(post);
+        String path = PostView.of(post, dateFactory).getPath();
 
         model.addAttribute("categories", PostCategory.values());
+        model.addAttribute("formats", PostFormat.values());
         model.addAttribute("postForm", postForm);
         model.addAttribute("post", post);
+        model.addAttribute("path", path);
         return "admin/blog/edit";
     }
 
@@ -80,13 +99,14 @@ class BlogAdminController {
     public String createPost(Principal principal, @Valid PostForm postForm, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("categories", PostCategory.values());
+            model.addAttribute("formats", PostFormat.values());
             return "admin/blog/new";
         } else {
             MemberProfile memberProfile = teamRepository.findById(new Long(principal.getName()));
             try {
                 Post post = service.addPost(postForm, memberProfile.getUsername());
                 PostView postView = PostView.of(post, dateFactory);
-                return "redirect:" + postView.getPath();
+                return "redirect:" + postView.getPath() + "/edit";
             } catch (DataIntegrityViolationException ex) {
                 model.addAttribute("categories", PostCategory.values());
                 model.addAttribute("postForm", postForm);
@@ -97,26 +117,21 @@ class BlogAdminController {
         }
     }
 
-    @RequestMapping(value = "/{postId:[0-9]+}{slug:.*}", method = PUT)
+    @RequestMapping(value = "/{postId:[0-9]+}{slug:.*}/edit", method = PUT)
     public String updatePost(@PathVariable Long postId, @Valid PostForm postForm, BindingResult bindingResult,
                              Model model) {
         Post post = service.getPost(postId);
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("categories", PostCategory.values());
-            model.addAttribute("post", post);
-            return "admin/blog/edit";
-        } else {
-            try {
-                service.updatePost(post, postForm);
-                PostView postView = PostView.of(post, dateFactory);
-                return "redirect:" + postView.getPath();
-            } catch (RestClientException e) {
-                model.addAttribute("categories", PostCategory.values());
-                model.addAttribute("post", post);
-                model.addAttribute("githubBroken", true);
-                return "admin/blog/edit";
-            }
+        if (!bindingResult.hasErrors()) {
+            service.updatePost(post, postForm);
         }
+        PostView postView = PostView.of(post, dateFactory);
+        String path = postView.getPath();
+
+        model.addAttribute("categories", PostCategory.values());
+        model.addAttribute("formats", PostFormat.values());
+        model.addAttribute("post", post);
+        model.addAttribute("path", path);
+        return "/admin/blog/edit";
     }
 
     @RequestMapping(value = "/{postId:[0-9]+}{slug:.*}", method = DELETE)
@@ -129,6 +144,12 @@ class BlogAdminController {
     @RequestMapping(value = "resummarize", method = POST)
     public String resummarizeAllBlogPosts() {
         service.resummarizeAllPosts();
+        return "redirect:/admin/blog";
+    }
+
+    @RequestMapping(value = "refreshall", method = POST)
+    public String refreshAllBlogPosts() {
+        service.refreshAllPosts();
         return "redirect:/admin/blog";
     }
 

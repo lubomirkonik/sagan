@@ -1,3 +1,5 @@
+@import "highlight.css";
+
 .blog--container {
   padding: 0 0 40px 0;
 }
@@ -56,6 +58,7 @@
   vertical-align: middle;
   margin: -2px 5px 0 0;
 }
+
 .blog--container .meta-data--container .meta-data--item a {
   color: #34302d;
 }
@@ -72,28 +75,42 @@
 .blog--container .blog--post a:hover {
   text-decoration: underline;
 }
+.blog--container .blog--post h2, .blog--container .blog--post h3, .blog--container .blog--post h4 {
+  margin: 30px 0 15px -1em;
+  padding-left: 1em;
+  font-weight: 700;
+}
 .blog--container .blog--post h2 {
   font-family: "Montserrat", sans-serif;
   font-size: 18px;
   line-height: 28px;
-  font-weight: 700;
-  margin: 30px 0 15px;
 }
 .blog--container .blog--post h3, .blog--container .blog--post h4 {
   font-family: "Montserrat", sans-serif;
   font-size: 16px;
   line-height: 26px;
-  font-weight: 700;
-  margin: 30px 0 15px;
 }
+.blog--container .blog--post h2>a.anchor, .blog--container .blog--post h3>a.anchor,
+.blog--container .blog--post h4>a.anchor {
+  position: absolute;
+  visibility: hidden;
+  display: block;
+  margin-left: -1em;
+  vertical-align: text-top;
+  color: #34302d;
+}
+.blog--container .blog--post h2>a.anchor:before, .blog--container .blog--post h3>a.anchor:before,
+.blog--container .blog--post h4>a.anchor:before {
+  content: "\00A7";
+}
+.blog--container .blog--post h2:hover>a.anchor, .blog--container .blog--post h3:hover>a.anchor,
+.blog--container .blog--post h4:hover>a.anchor {
+  visibility: visible;
+  text-decoration: none;
+}
+
 .blog--container .blog--post p {
   margin-bottom: 20px;
-}
-.blog--container .blog--post code {
-  color: #305CB5;
-  font-size: 14px;
-  padding: 2px 6px;
-  white-space: normal;
 }
 .blog--container .blog--post ul, .blog--container .blog--post ol {
   margin: 15px 0 20px 25px;
@@ -161,7 +178,6 @@
   font-size: 14px;
   line-height: 20px;
 }
-
 /*
     Fix styling of tables in GitHub Markdown-generated
     HTML to match other spring.io tables
